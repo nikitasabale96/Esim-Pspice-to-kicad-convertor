@@ -1,133 +1,110 @@
 <?php
 
-function pspice_to_kicad_menu()
-{
-    $items = array();
-    $items["pspice-to-kicad/list"] = array(
-        "title" => "List of converted files from PSPICE to KICAD",
-        "page callback" => "pspice_to_kicad_view",
-        "access arguments" => array(
-            "access pspice_to_kicad",
-        ),
-        "type" => MENU_CALLBACK,
-    );
-    $items["pspice-to-kicad/description"] = array(
-        "title" => "More Details",
-        "page callback" => "pspice_to_kicad_get_description",
-        "access arguments" => array(
-            "access pspice_to_kicad",
-        ),
-        "type" => MENU_CALLBACK,
-    );
-    $items["pspice-to-kicad/descriptioninfo"] = array(
-        "title" => "File Details",
-        "page callback" => "pspice_to_kicad_get_descriptioninfo",
-        "access arguments" => array(
-            "convert pspice_to_kicad",
-        ),
-        "type" => MENU_CALLBACK,
-    );
-    $items['pspice-to-kicad/download/file'] = array(
-        'title' => 'File Download',
-        'description' => 'File Download',
-        'page callback' => 'pspice_to_kicad_download_file',
-        'access arguments' => array("access pspice_to_kicad"),
-        'type' => MENU_CALLBACK,
+/**
+ * Implements hook_menu().
+ */
+/**
+ * Implements hook_menu().
+ */
+function pspice_to_kicad_menu() {
+  $items = array();
 
-    );
-    $items['pspice-to-kicad/download/pdf'] = array(
-        'title' => 'Description PDF File Download',
-        'description' => 'Description PDF File Download',
-        'page callback' => 'pspice_to_kicad_download_pdf_file',
-        'access arguments' => array("access pspice_to_kicad"),
-        'type' => MENU_CALLBACK,
+  /* LIST OF CONVERTED FILES */
+  $items['pspice-to-kicad/list'] = array(
+    'title' => 'List of converted files from PSPICE to KICAD',
+    'page callback' => 'pspice_to_kicad_view',
+    'access arguments' => array('access pspice_to_kicad'),
+  );
 
-    );
-    $items["pspice-to-kicad/add"] = array(
+  /* FILE DESCRIPTION */
+  $items['pspice-to-kicad/description/%'] = array(
+    'title' => 'More Details',
+    'page callback' => 'pspice_to_kicad_get_description',
+    'page arguments' => array(2),
+    'access arguments' => array('access pspice_to_kicad'),
+  );
+
+  /* ADD / UPLOAD PSPICE FILE */
+
+  $items["pspice-to-kicad/add"] = array(
         "title" => "UPLOAD FILES FOR PSPICE TO KICAD CONVERT",
-        "page callback" => "pspice_to_kicad_add_form_display",
+        "page callback" => "drupal_get_form",
+        "page arguments" => array(
+            'pspice_to_kicad_add_form'
+        ),
         "access arguments" => array(
             "manage pspice_to_kicad",
         ),
-        "type" => MENU_CALLBACK,
-    );
-    $items["pspice-to-kicad/your-upload"] = array(
-        "title" => "LIST OF FILES UPLOADED BY USER",
-        "page callback" => "pspice_to_kicad_your_uploaded_file",
-        "access arguments" => array(
-            "manage pspice_to_kicad",
-        ),
-        "type" => MENU_CALLBACK,
+        //"type" => MENU_CALLBACK,
+        "file" => 'pspice_to_kicad_add_form.inc'
     );
 
-    $items["pspice-to-kicad/convert"] = array(
-        "title" => "FILES TO BE CONVERTED",
-        "page callback" => "pspice_to_kicad_remain_list",
-        "access arguments" => array(
-            "convert pspice_to_kicad",
-        ),
-        "type" => MENU_CALLBACK,
-    );
+  /* USER UPLOADED FILES LIST */
+  $items['pspice-to-kicad/your-upload'] = array(
+    'title' => 'FILES UPLOADED BY YOU',
+    'page callback' => 'drupal_get_form',
+    "page argument" => array(
+        'pspice_to_kicad_your_uploaded_file'
+    ),
 
-    $items['pspice-to-kicad/download/pspicefile'] = array(
-        'title' => 'Pspice File Download',
-        'description' => 'Pspice File Download',
-        'page callback' => 'pspice_to_kicad_download_pspice_file',
-        'access arguments' => array("convert pspice_to_kicad"),
-        'type' => MENU_CALLBACK,
+    'access arguments' => array('manage pspice_to_kicad'),
+    "file" => 'pspice_to_kicad_upload_form.inc'
+  );
 
-    );
-    $items['pspice-to-kicad/convert/file'] = array(
-        'title' => 'Convert Files',
-        'description' => 'Convert Files',
-        'page callback' => 'pspice_to_kicad_convert_file',
-        'access arguments' => array("convert pspice_to_kicad"),
-        'type' => MENU_CALLBACK,
+  /* FILES TO BE CONVERTED (ADMIN / CONVERTER) */
+  $items['pspice-to-kicad/convert'] = array(
+    'title' => 'Files to Be Converted',
+    'page callback' => 'pspice_to_kicad_remain_list',
+    'access arguments' => array('convert pspice_to_kicad'),
+  );
 
-    );
-    $items['pspice-to-kicad/delete/file'] = array(
-        'title' => 'Delete File',
-        'description' => 'Delete File',
-        'page callback' => 'pspice_to_kicad_delete_file',
-        'access arguments' => array("delete pspice_to_kicad file"),
-        'type' => MENU_CALLBACK,
+  /* DOWNLOAD CONVERTED FILE */
+  $items['pspice-to-kicad/download/file/%'] = array(
+    'title' => 'Download Converted File',
+    'page callback' => 'pspice_to_kicad_download_file',
+    'page arguments' => array(3),
+    'access arguments' => array('access pspice_to_kicad'),
+  );
 
-    );
+  /* DOWNLOAD DESCRIPTION PDF */
+  $items['pspice-to-kicad/download/pdf/%'] = array(
+    'title' => 'Download Description PDF',
+    'page callback' => 'pspice_to_kicad_download_pdf_file',
+    'page arguments' => array(3),
+    'access arguments' => array('access pspice_to_kicad'),
+  );
 
-    $items['pspice-to-kicad/convert/approved'] = array(
-        'title' => 'Convert Files',
-        'description' => 'Convert Files',
-        'page callback' => 'pspice_to_kicad_convert_approved',
-        'access arguments' => array("convert pspice_to_kicad"),
-        'type' => MENU_CALLBACK,
+  /* DELETE FILE FORM */
+  $items['pspice-to-kicad/delete/file/%'] = array(
+    'title' => 'Delete File',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array
+    ('pspice_to_kicad_delete_file_form', 3),
+    
+    'access arguments' => array('delete pspice_to_kicad file'),
+    'file' => 'pspice_to_kicad_delete_file_form.inc',
+  );
 
-    );
+  /* UPLOAD CORRECTED / CONVERTED ZIP (FORM) */
+  $items['pspice-to-kicad/convert/upload/%'] = array(
+    'title' => 'Upload Converted File',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pspice_to_kicad_upload_form', 3),
+    'access arguments' => array('convert pspice_to_kicad'),
+    'file' => 'pspice_to_kicad_upload_form.inc',
+  );
 
-    $items['pspice-to-kicad/convert/upload'] = array(
-        'title' => 'Upload Corrected Zip',
-        'description' => 'Convert Files',
-        'page callback' => 'pspice_to_kicad_convert_upload',
-        'access arguments' => array("convert pspice_to_kicad"),
-        'type' => MENU_CALLBACK,
+  /* ADMIN SETTINGS */
+  $items['admin/settings/pspice-to-kicad'] = array(
+    'title' => 'Pspice File Settings',
+    'description' => 'Pspice File Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pspicefile_settings_form'),
+    'access arguments' => array('administer events'),
+    'file' => 'settings.inc',
+  );
 
-    );
-
-    /* ADMIN SETTINGS */
-    $items['admin/settings/pspice-to-kicad'] = array(
-        'title' => 'Pspice File Settings',
-        'description' => 'Pspice File Settings',
-        'page callback' => 'drupal_get_form',
-        'page arguments' => array(
-            'pspicefile_settings_form',
-        ),
-        'access arguments' => array(
-            'administer events',
-        ),
-        'type' => MENU_NORMAL_ITEM,
-        'file' => 'settings.inc',
-    );
-
-    return $items;
+  return $items;
 }
 
 function pspice_to_kicad_permission()
@@ -225,290 +202,20 @@ function get_directory_path($uid, $fid, $flag)
             return $uid . '/' . $fid . '/' . 'pspice_to_kicad_converts';
         }
     } else {
-        drupal_set_message('Directory not available. Contact site administrator ', 'error');
+        \Drupal::messenger()->addError('Directory not available. Contact site administrator ');
         return flase;
     }
 }
 
-function pspice_to_kicad_add_form_display()
-{
-    $page_content = "";
-    $pspice_to_kicad_add_form = drupal_get_form("pspice_to_kicad_add_form");
-    $page_content = drupal_render($pspice_to_kicad_add_form);
-    return $page_content;
-}
+// function pspice_to_kicad_add_form_display()
+// {
+//     $page_content = "";
+//     $pspice_to_kicad_add_form = drupal_get_form("pspice_to_kicad_add_form");
+//     $page_content = drupal_render($pspice_to_kicad_add_form);
+//     return $page_content;
+// }
 
-function pspice_to_kicad_add_form($form, &$form_state)
-{
 
-    $form = array();
-
-    $form["codefilename"] = array(
-        '#title' => t('Pspice File'),
-        '#type' => 'file',
-        '#weight' => '1',
-        '#description' => t('<label Style="color:red">Note: Give relevant name to file before uploading. For example: RC_CIRCUIT.sch<br> (Only file with extension .sch or.SCH can be uploaded)</label>'),
-
-    );
-
-    $form["description"] = array(
-        "#type" => "textarea",
-        "#required" => true,
-        '#weight' => '2',
-        "#title" => "Description",
-        '#description' => t('<label Style="color:red">Note: Brief Description about file usage and other important details.(Minimum 50 Character) </label>'),
-    );
-    $form['pdffilename'] = array(
-        '#title' => t('PDF File'),
-        '#type' => 'file',
-        '#weight' => '3',
-        '#description' => t('<label Style="color:red">Note: Please upload any other supplementary document like experiment details/ lab manual/ analysis parameter details of the schematic here (Not mandatory)<br>Only PDF file can be uploaded</label>'),
-    );
-
-    $form['termsandcondition'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('Terms and Conditions'),
-        '#weight' => '4',
-        "#required" => true,
-    );
-
-    $form['termsandcondition_text'] = array(
-        '#type' => 'markup',
-        '#weight' => '5',
-        '#markup' => t('
-	<ul><li>I confirm that the PSpice schematic file uploaded is created by me. </li>
-	<li>I agree to temporarily transfer the ownership of this file to FOSSEE for the conversion purpose.</li>
-	<li>I agree to FOSSEE project releasing the converted files as open source under the <a href="https://creativecommons.org/">Creative Commons (CC)</a> license and agree to the same.</li></ul>
-	 Note: All uploaded PSpice files will be deleted from our database after converting them to KiCad files.<br><br>
-	'),
-    );
-
-    $form["submit"] = array(
-        "#type" => "submit",
-        '#weight' => '6',
-        "#value" => "Submit",
-    );
-    return $form;
-}
-
-function pspice_to_kicad_add_form_validate($form, &$form_state)
-{
-
-    if (isset($_FILES['files'])) {
-
-        /* check if atleast one source or result file is uploaded */
-        if (!($_FILES['files']['name']['codefilename'])) {
-            form_set_error('codefilename', t('Please upload Pspice file.'));
-        }
-
-        foreach ($_FILES['files']['name'] as $file_form_name => $file_name) {
-
-            if ($file_name) {
-                /* checking file type */
-
-                if (strstr($file_form_name, 'code')) {
-                    $file_type = 'P';
-                } else if (strstr($file_form_name, 'pdf')) {
-                    $file_type = 'D';
-                } else {
-                    $file_type = 'U';
-                }
-
-                $allowed_extensions_str = '';
-                switch ($file_type) {
-                    case 'P':
-                        $allowed_extensions_str = variable_get('pspice_files_extensions', '');
-                        break;
-                    case 'D':
-                        $allowed_extensions_str = variable_get('pdfpspicefile_files_extensions', '');
-                        break;
-
-                }
-                $allowed_extensions = explode(',', $allowed_extensions_str);
-                $allowed_ext = explode('.', strtolower($_FILES['files']['name'][$file_form_name]));
-                $temp_extension = end($allowed_ext);
-
-                if (!in_array($temp_extension, $allowed_extensions)) {
-                    form_set_error($file_form_name, t('Only file with ' . $allowed_extensions_str . ' extensions can be uploaded.'));
-                }
-
-                if ($_FILES['files']['size'][$file_form_name] <= 0) {
-                    form_set_error($file_form_name, t('File size cannot be zero.'));
-                }
-
-                /* check if valid file name */
-                if (!pspice_to_kicad_check_valid_filename($_FILES['files']['name'][$file_form_name])) {
-                    form_set_error($file_form_name, t('Invalid file name specified. No Space are allowed in
-    a filename.'));
-                }
-
-            }
-        }
-
-    }
-
-}
-
-function pspice_to_kicad_add_form_submit($form, &$form_state)
-{
-
-    global $user;
-    if (!$user->uid) {
-        drupal_set_message('It is mandatory to login on this website to upload files for converting', 'error');
-        return;
-    }
-
-    $v = $form_state["values"];
-    $filesupload = 0;
-    $i = 0;
-    $uploaddataresult = 0;
-    $upload_root_path = pspice_to_kicad_directroy_path();
-    $uploaddataquery = "
-    INSERT INTO custom_kicad_convertor
-    (uid,caption,description,upload_filename,upload_filepath,upload_filemime,upload_filesize,upload_date,converted_filename,
-    converted_filepath,converted_filemime,converted_filesize,converted_date,converted_flag,download_counter)
-    VALUES
-    (:uid,:caption,:description,:upload_filename,:upload_filepath,:upload_filemime,:upload_filesize,:upload_date,:converted_filename,
-    :converted_filepath,:converted_filemime,:converted_filesize,:converted_date,:converted_flag,:download_counter)
-    ";
-    $uploaddataargs = array(
-        ":uid" => $user->uid,
-        ":caption" => "None",
-        ":description" => trim($v["description"]),
-        ":upload_filename" => "None",
-        ":upload_filepath" => "None",
-        ":upload_filemime" => "None",
-        ":upload_filesize" => 0,
-        ":upload_date" => date("Y-m-d H:i:s"),
-        ":converted_filename" => "None",
-        ":converted_filepath" => "None",
-        ":converted_filemime" => "None",
-        ":converted_filesize" => 0,
-        ":converted_date" => date("Y-m-d H:i:s"),
-        ":converted_flag" => 0,
-        ":download_counter" => 0,
-
-    );
-
-    /* storing the row id in $result */
-    $uploaddataresult = db_query($uploaddataquery, $uploaddataargs, array(
-        'return' => Database::RETURN_INSERT_ID,
-    ));
-    get_directory($user->uid, $uploaddataresult);
-    $new_dest_path = get_directory_path($user->uid, $uploaddataresult, 3);
-    $get_absolute_path = get_directory_path($user->uid, $uploaddataresult, 1);
-    //var_dump($new_dest_path);die;
-    foreach ($_FILES['files']['name'] as $file_form_name => $file_name) {
-
-        if (strlen(trim($v["description"])) >= 49 && strlen(trim($v["description"])) <= 200) {
-
-            $temp = explode(".", $file_name);
-            $newuploadfilename = $file_name;
-
-            /*for uploading*/
-            if ($newuploadfilename) {
-
-                if ($file_form_name != "pdffilename") {
-                    if (file_exists($get_absolute_path . '/' . $newuploadfilename)) {
-                        drupal_set_message(t("Error uploading file. File !filename already exists. Please give different relevant name", array(
-                            '!filename' => $newuploadfilename,
-                        )), 'error');
-                        return;
-                    }
-                } else {
-
-                    $newuploadfilename = str_replace(' ', '_', trim($newuploadfilename . "@" . date("Y-m-d H:i:s")));
-
-                }
-
-                /* uploading file */
-
-                if (move_uploaded_file($_FILES['files']['tmp_name'][$file_form_name], $get_absolute_path . '/' . $newuploadfilename)) {
-
-                    if ($file_form_name != "pdffilename") {
-                        $updatequery = db_update('custom_kicad_convertor');
-                        $updatequery->fields(array(
-                            "uid" => $user->uid,
-                            "caption" => "None",
-                            "description" => trim($v["description"]),
-                            "upload_filename" => $newuploadfilename,
-                            "upload_filepath" => $new_dest_path . '/' . $newuploadfilename,
-                            "upload_filemime" => file_get_mimetype($newuploadfilename),
-                            "upload_filesize" => $_FILES['files']['size'][$file_form_name],
-                            "upload_date" => date("Y-m-d H:i:s"),
-                            "converted_filename" => "None",
-                            "converted_filepath" => "None",
-                            "converted_filemime" => "None",
-                            "converted_filesize" => 0,
-                            "converted_date" => date("Y-m-d H:i:s"),
-                            "converted_flag" => 0,
-                            "download_counter" => 0,
-                        ));
-                        $updatequery->condition('id', $uploaddataresult);
-                        $updatequery->execute();
-
-                    } else {
-
-                        $updatequery = db_update('custom_kicad_convertor');
-                        $updatequery->fields(array(
-                            'description_pdf_path' => $new_dest_path . '/' . $newuploadfilename,
-                        ));
-                        $updatequery->condition('id', $uploaddataresult);
-                        $updateresult = $updatequery->execute();
-
-                    }
-
-                    if ($file_form_name != "pdffilename") {
-                        if ($uploaddataresult != 0) {
-                            $filesupload++;
-
-                            /* sending mail */
-
-                            $user_data = user_load($user->uid);
-                            $to = $user_data->mail;
-                            $from = variable_get('kicad_from_email', '');
-                            $bcc = variable_get('kicad_emails', '');
-                            $cc = variable_get('kicad_cc_emails', '');
-                            $subject = "[esim.in][PSpice to KiCad Converter] Successful upload of PSpice schematic";
-
-                            $email_body = "
-
-Dear " . $user_data->name . ",
-
-You have uploaded the following PSpice schematic:
-File : " . $newuploadfilename . "
-
-We shall review it and convert the schematic into KiCad format. You will be notified once the file is converted.
-
-Best Wishes,<br>
-" . variable_get('site_name', '') . " Team,<br>
-FOSSEE, IIT Bombay";
-
-                            send_mail(variable_get('kicad_from_email', ''), $to, $subject, $email_body, $from, $bcc, $cc);
-
-                        }
-
-                    }
-
-                } else {
-                    drupal_set_message('Error uploading file : ' . $new_dest_path . '/' . $newuploadfilename, 'error');
-                }
-
-            }
-
-        } else {
-
-            form_set_error('description', t('Minimum 50 character and Maximum 200 character for description'));
-            return;
-        }
-
-    }
-
-    if ($filesupload != 0) {
-        drupal_set_message('File uploaded successfully. Please check your register email for more details.', 'status');
-    }
-
-}
 
 function pspice_to_kicad_remain_list()
 {
@@ -526,7 +233,15 @@ color: white;
 
 }
 ";
-    drupal_add_css($convertor_CSS, 'inline', 'header');
+    // @FIXME
+// The Assets API has totally changed. CSS, JavaScript, and libraries are now
+// attached directly to render arrays using the #attached property.
+// 
+// 
+// @see https://www.drupal.org/node/2169605
+// @see https://www.drupal.org/node/2408597
+// drupal_add_css($convertor_CSS, 'inline', 'header');
+
 
     $caption = "<h4>List of files to be converted: <br><br><h4>";
     $output = "";
@@ -544,7 +259,7 @@ color: white;
         array('data' => ''),
     );
 
-    $query = db_select('custom_kicad_convertor', 'ckc');
+    $query = \Drupal::database()->select('custom_kicad_convertor', 'ckc');
     $query->fields('ckc', array('id', 'uid', 'upload_date', 'upload_filename', 'upload_filepath'));
     $query->condition('ckc.converted_flag', 2, '<>');
     $result = $query->orderBy('id', 'DESC')->execute();
@@ -555,7 +270,9 @@ color: white;
         $filenamewothoutext = $filearray[0];
         $filename = $filenamewothoutext;
 
-        $item = array($i, date('d-m-Y', strtotime($row->upload_date)), "<a href='descriptioninfo/{$row->id}' class='autodialog' data-dialog-width='700' title='Click to view file details'>" . $filename . "</a>",
+        // @FIXME
+// l() expects a Url object, created from a route name or external URI.
+$item = array($i, date('d-m-Y', strtotime($row->upload_date)), "<a href='descriptioninfo/{$row->id}' class='autodialog' data-dialog-width='700' title='Click to view file details'>" . $filename . "</a>",
 
             l(t('Convert'), '/pspice-to-kicad/convert/file/' . $row->id, array('attributes' => array('class' => array('convert_button'), 'title' => 'Click to convert file'))),
             l(t('Delete'), '/pspice-to-kicad/delete/file/' . $row->id, array('attributes' => array('class' => array('convert_button'), 'title' => 'Click to delete file'))),
@@ -563,6 +280,7 @@ color: white;
             l(t('Publish'), '/pspice-to-kicad/convert/approved/' . $row->id, array('attributes' => array('class' => array('convert_button'), 'title' => 'Click to publish file'))),
 
         );
+
         array_push($rows, $item);
         $i++;
     }
@@ -571,10 +289,19 @@ color: white;
         $output .= '<div style="color:red;text-align:center;">No files for convert</div>';
     } else {
 
-        $output = theme('table', array(
-            'header' => $header,
-            'rows' => $rows,
-        ));
+        // @FIXME
+// theme() has been renamed to _theme() and should NEVER be called directly.
+// Calling _theme() directly can alter the expected output and potentially
+// introduce security issues (see https://www.drupal.org/node/2195739). You
+// should use renderable arrays instead.
+// 
+// 
+// @see https://www.drupal.org/node/2195739
+// $output = theme('table', array(
+//             'header' => $header,
+//             'rows' => $rows,
+//         ));
+
     }
 
     return $output;
@@ -598,7 +325,7 @@ function pspice_to_kicad_view()
 
     );
 
-    $query = db_select('custom_kicad_convertor', 'ckc');
+    $query = \Drupal::database()->select('custom_kicad_convertor', 'ckc');
     $query->fields('ckc', array('id', 'uid', 'caption', 'description', 'converted_filename'
         , 'converted_filepath', 'converted_date', 'download_counter'));
     $query->condition('ckc.converted_flag', 2);
@@ -608,17 +335,20 @@ function pspice_to_kicad_view()
 
     while ($row = $result->fetchObject()) {
 
-        $query = db_select('users');
+        $query = \Drupal::database()->select('users');
         $query->fields('users');
         $query->condition('uid', $row->uid);
         $user = $query->execute();
         $user_data = $user->fetchObject();
 
-        $item = array( $user_data->name,
-            l($row->converted_filename, '/pspice-to-kicad/download/file/' . $row->id, array('attributes' => array('title' => 'Click to download converted file'))),
-            "<a href='description/{$row->id}' class='autodialog' data-dialog-width='700' title='Click to view more detail about file'>Detail</a>",
-            date('d-m-Y', strtotime($row->converted_date)),
-        );
+        // @FIXME
+// l() expects a Url object, created from a route name or external URI.
+// $item = array( $user_data->name,
+//             l($row->converted_filename, '/pspice-to-kicad/download/file/' . $row->id, array('attributes' => array('title' => 'Click to download converted file'))),
+//             "<a href='description/{$row->id}' class='autodialog' data-dialog-width='700' title='Click to view more detail about file'>Detail</a>",
+//             date('d-m-Y', strtotime($row->converted_date)),
+//         );
+
         array_push($rows, $item);
     }
 
@@ -650,7 +380,7 @@ function pspice_to_kicad_download_file()
     $id = arg(3);
     $root_path = pspice_to_kicad_directroy_path();
 
-    $query = db_select('custom_kicad_convertor');
+    $query = \Drupal::database()->select('custom_kicad_convertor');
     $query->fields('custom_kicad_convertor');
     $query->condition('id', $id);
     $query->range(0, 1);
@@ -660,7 +390,7 @@ function pspice_to_kicad_download_file()
     $earlier_count = $file_data->download_counter;
     $download_counter = 1;
 
-    $updatequery = db_update('custom_kicad_convertor');
+    $updatequery = \Drupal::database()->update('custom_kicad_convertor');
     $updatequery->fields(array(
         'download_counter' => $earlier_count + $download_counter,
     ));
@@ -709,7 +439,7 @@ function pspice_to_kicad_convert_file()
 
         $fileid = arg(3);
 
-        $query = db_select('custom_kicad_convertor', 'ckc');
+        $query = \Drupal::database()->select('custom_kicad_convertor', 'ckc');
         $query->fields('ckc', array('id', 'uid', 'caption', 'upload_date', 'upload_filename', 'upload_filepath'));
         $query->condition('id', $fileid);
         $result = $query->execute();
@@ -732,7 +462,7 @@ function pspice_to_kicad_convert_file()
         $filearray = explode('.', $file);
         $converted_file = $convert_root_path . "/" . $filenamewothoutext . ".zip";
         $conv_path = get_directory_path($row->uid, $fileid, 4);
-        $query = db_update('custom_kicad_convertor');
+        $query = \Drupal::database()->update('custom_kicad_convertor');
         $query->fields(array(
             'converted_filename' => $filenamewothoutext . ".zip",
             'converted_filepath' => $conv_path . "/" . $filenamewothoutext . ".zip",
@@ -752,7 +482,7 @@ function pspice_to_kicad_convert_file()
         readfile($converted_file);
     } catch (Exception $e) {
         var_dump($e);die;
-        drupal_set_message('Error while converting file, Please download specific file by clicking on file and Check it manually', 'error');
+        \Drupal::messenger()->addError('Error while converting file, Please download specific file by clicking on file and Check it manually');
         drupal_goto("pspice-to-kicad/convert");
         return;
 
@@ -764,7 +494,7 @@ function pspice_to_kicad_convert_approved()
 
     $fileid = arg(3);
     $number_of_rows = 0;
-    $querycheck = db_select('custom_kicad_convertor');
+    $querycheck = \Drupal::database()->select('custom_kicad_convertor');
     $querycheck->fields('custom_kicad_convertor');
     $querycheck->condition('id', $fileid);
     $querycheck->condition('converted_flag', "1");
@@ -772,7 +502,7 @@ function pspice_to_kicad_convert_approved()
     $number_of_rows = $resultcheck->rowCount();
 
     if ($number_of_rows != 0) {
-        $query = db_update('custom_kicad_convertor');
+        $query = \Drupal::database()->update('custom_kicad_convertor');
         $query->fields(array(
             'converted_flag' => "2",
         ));
@@ -780,7 +510,7 @@ function pspice_to_kicad_convert_approved()
         $result = $query->execute();
         if ($result) {
 
-            $query = db_select('custom_kicad_convertor');
+            $query = \Drupal::database()->select('custom_kicad_convertor');
             $query->fields('custom_kicad_convertor');
             $query->condition('id', $fileid);
             $result = $query->execute();
@@ -794,29 +524,54 @@ function pspice_to_kicad_convert_approved()
             if (file_exists($upload_root_path . $dest_path . $newuploadfilename)) {
                 unlink($upload_root_path . $dest_path . $newuploadfilename);
             }
-            $user_data = user_load($row->uid);
+            $user_data = \Drupal::entityTypeManager()->getStorage('user')->load($row->uid);
             $to = $user_data->mail;
-            $from = variable_get('kicad_from_email', '');
-            $bcc = variable_get('kicad_emails', '');
-            $cc = variable_get('kicad_cc_emails', '');
+            // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// $from = variable_get('kicad_from_email', '');
+
+            // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// $bcc = variable_get('kicad_emails', '');
+
+            // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// $cc = variable_get('kicad_cc_emails', '');
+
             $subject = "[esim.in][PSpice to KiCad Converter] PSpice file converted successfully";
 
-            $email_body = "
+            // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// $email_body = "
+// 
+// Dear " . $user_data->name . ",
+// 
+// The uploaded PSpice file " . $row->upload_filename . " is successfully converted to Kicad format. This can be used in https://esim.fossee.in . You can download the converted file from https://esim.fossee.in/pspice-to-kicad/download/file/" . $fileid . "
+// 
+// Best Wishes,<br>
+// " . variable_get('site_name', '') . " Team,<br>
+// FOSSEE, IIT Bombay";
 
-Dear " . $user_data->name . ",
 
-The uploaded PSpice file " . $row->upload_filename . " is successfully converted to Kicad format. This can be used in https://esim.fossee.in . You can download the converted file from https://esim.fossee.in/pspice-to-kicad/download/file/" . $fileid . "
+            // @FIXME
+// // @FIXME
+// // This looks like another module's variable. You'll need to rewrite this call
+// // to ensure that it uses the correct configuration object.
+// send_mail(variable_get('kicad_from_email', ''), $to, $subject, $email_body, $from, $bcc, $cc);
 
-Best Wishes,<br>
-" . variable_get('site_name', '') . " Team,<br>
-FOSSEE, IIT Bombay";
-
-            send_mail(variable_get('kicad_from_email', ''), $to, $subject, $email_body, $from, $bcc, $cc);
         }
 
     } else {
 
-        drupal_set_message('File should be converted before Publishing', 'error');
+        \Drupal::messenger()->addError('File should be converted before Publishing');
 
     }
     drupal_goto("pspice-to-kicad/convert");
@@ -828,7 +583,7 @@ function pspice_to_kicad_convert_upload()
     $fileid = arg(3);
 
     $number_of_rows = 0;
-    $querycheck = db_select('custom_kicad_convertor');
+    $querycheck = \Drupal::database()->select('custom_kicad_convertor');
     $querycheck->fields('custom_kicad_convertor');
     $querycheck->condition('id', $fileid);
     $resultcheck = $querycheck->execute();
@@ -836,177 +591,25 @@ function pspice_to_kicad_convert_upload()
     $page_content = "";
     if ($number_of_rows != 0) {
 
-        $pspice_to_kicad_upload_form = drupal_get_form("pspice_to_kicad_upload_form", $fileid);
-        $page_content = drupal_render($pspice_to_kicad_upload_form);
+        $pspice_to_kicad_upload_form = \Drupal::formBuilder()->getForm("pspice_to_kicad_upload_form", $fileid);
+        $page_content = \Drupal::service("renderer")->render($pspice_to_kicad_upload_form);
         return $page_content;
 
     } else {
 
-        drupal_set_message('File should be converted first <br> If automated converted file has error, you can upload corrected zip file 		using this feature.', 'error');
+        \Drupal::messenger()->addError('File should be converted first <br> If automated converted file has error, you can upload corrected zip file 		using this feature.');
         drupal_goto("pspice-to-kicad/convert");
         return;
     }
 
 }
 
-function pspice_to_kicad_upload_form($form, &$form_state, $fileid)
-{
-
-    $query = db_select('custom_kicad_convertor');
-    $query->fields('custom_kicad_convertor');
-    $query->condition('id', $fileid);
-    $result = $query->execute();
-    $row = $result->fetchObject();
-
-    $form = array();
-    $form['pspice_uploadfiles_fieldset'] = array(
-        '#type' => 'fieldset',
-        '#tree' => true,
-        '#prefix' => '<div id="pspice-files-fieldset-wrapper">',
-        '#suffix' => '</div>',
-    );
-
-    $form['pspice_uploadfiles_fieldset']["file_description"] = array(
-        "#type" => "textarea",
-        "#default_value" => $row->description,
-        "#title" => "Description",
-        "#required" => true,
-        '#description' => t('<label>Note: Brief Description about file usage and other important details.(Minimum 50 Character) </label>'),
-    );
-
-    $form['pspice_uploadfiles_fieldset']['name'] = array(
-        '#title' => t('Upload File'),
-        '#type' => 'file',
-        '#weight' => '5',
-        '#description' => t('<label Style="color:red">Note: Give appropriate name to file which you will be uploading.</label>'),
-    );
-    $form["pspice_files_id"] = array(
-        "#type" => "hidden",
-        "#value" => $fileid,
-    );
-    $form["submit"] = array(
-        "#type" => "submit",
-        "#value" => "Submit",
-    );
-    return $form;
-}
-
-function pspice_to_kicad_upload_form_validate()
-{
-    if (isset($_FILES['files'])) {
-
-        /* check for valid filename extensions */
-        foreach ($_FILES['files']['name'] as $file_form_name => $file_name) {
-            if ($file_name) {
-                if (strstr($file_form_name, 'pspice_uploadfiles_fieldset')) {
-                    $file_type = 'P';
-                }
-
-                switch ($file_type) {
-                    case 'P':
-                        $allowed_extensions_str = variable_get('kicad_corrected_files_extensions', '');
-                        break;
-                }
-                $allowed_extensions = explode(',', $allowed_extensions_str);
-                $allowed_ext = explode('.', strtolower($_FILES['files']['name'][$file_form_name]));
-                $temp_extension = end($allowed_ext);
-
-                if (!in_array($temp_extension, $allowed_extensions)) {
-                    form_set_error($file_form_name, t('Only file with ' . $allowed_extensions_str . ' extensions can be uploaded.'));
-                }
-
-                if (($_FILES['files']['size'][$file_form_name] == 0)) {
-                    form_set_error($file_form_name, t('File with 0 byte size cannot be uploaded.'));
-                }
-
-                if (!pspice_to_kicad_check_valid_filename($_FILES['files']['name'][$file_form_name])) {
-                    form_set_error($file_form_name, t('Invalid file name specified. No Space are allowed in a filename.'));
-                }
-
-            }
-
-        }
-
-    }
-
-}
-
-function pspice_to_kicad_upload_form_submit($form, &$form_state)
-{
-
-    global $user;
-    $v = $form_state["values"];
-    $filesupload = 0;
-    $i = 0;
-    $id = $v["pspice_files_id"];
-    $arr = array_values($_FILES['files']['name']);
-    if (strlen(trim($arr[0])) <= 0) {
-        drupal_set_message('Please corrected zip file', 'error');
-        return;
-    }
-
-    $query = db_select('custom_kicad_convertor');
-    $query->fields('custom_kicad_convertor');
-    $query->condition('id', $id);
-    $result = $query->execute();
-    $row = $result->fetchObject();
-
-    /*Creating folder for saving uploaded files */
-    get_directory($user->uid, $id);
-    $new_dest_path = get_directory_path($user->uid, $id, 4);
-    $get_absolute_path = get_directory_path($user->uid, $id, 2);
-
-    // $convert_root_path = pspice_to_kicad_convert_path() . "/";
-    // $eventfolder = $row->uid;
-    //$dest_path = $eventfolder . '/';
-    // if (!is_dir($convert_root_path . $dest_path)) {
-    //     mkdir($convert_root_path . $dest_path);
-    // }
-    foreach ($_FILES['files']['name'] as $file_form_name => $file_name) {
-
-        $temp = explode(".", $file_name);
-        $newuploadfilename = $file_name;
-
-        /*for uploading*/
-        if ($newuploadfilename) {
-            if (file_exists($get_absolute_path . '/' . $newuploadfilename)) {
-                unlink($get_absolute_path . '/' . $newuploadfilename);
-            }
-
-            /* uploading file */
-
-            if (move_uploaded_file($_FILES['files']['tmp_name'][$file_form_name], $get_absolute_path . '/' . $newuploadfilename)) {
-
-                $updatequery = db_update('custom_kicad_convertor');
-                $updatequery->fields(array(
-                    "description" => trim($v['pspice_uploadfiles_fieldset']["file_description"]),
-                    "converted_filename" => $newuploadfilename,
-                    "converted_filepath" => $new_dest_path . '/' . $newuploadfilename,
-                    "converted_filemime" => file_get_mimetype($newuploadfilename),
-                    "converted_filesize" => $_FILES['files']['size'][$file_form_name],
-                    "converted_date" => date("Y-m-d H:i:s"),
-                    "converted_flag" => 1,
-
-                ));
-                $updatequery->condition('id', $id);
-                $updateresult = $updatequery->execute();
-
-                drupal_set_message($newuploadfilename . ' uploaded successfully.', 'status');
-            } else {
-                drupal_set_message('Error uploading file : ' . $new_dest_path . '/' . $newuploadfilename, 'error');
-            }
-        }
-
-    }
-    drupal_goto("pspice-to-kicad/convert");
-    return;
-}
 
 function pspice_to_kicad_get_description($file_id = 0)
 {
     $pagecontent = "";
     $fileid = arg(2);
-    $query = db_select('custom_kicad_convertor');
+    $query = \Drupal::database()->select('custom_kicad_convertor');
     $query->fields('custom_kicad_convertor');
     $query->condition('id', $fileid);
     $result = $query->execute();
@@ -1028,13 +631,13 @@ function pspice_to_kicad_get_descriptioninfo($file_id = 0)
 {
     $pagecontent = "";
     $fileid = arg(2);
-    $query = db_select('custom_kicad_convertor');
+    $query = \Drupal::database()->select('custom_kicad_convertor');
     $query->fields('custom_kicad_convertor');
     $query->condition('id', $fileid);
     $result = $query->execute();
     $row = $result->fetchObject();
 
-    $queryuser = db_select('users');
+    $queryuser = \Drupal::database()->select('users');
     $queryuser->fields('users');
     $queryuser->condition('uid', $row->uid);
     $user = $queryuser->execute();
@@ -1060,76 +663,76 @@ function pspice_to_kicad_get_descriptioninfo($file_id = 0)
     return $pagecontent;
 }
 
-function pspice_to_kicad_your_uploaded_file()
-{
+// function pspice_to_kicad_your_uploaded_file()
+// {
 
-    global $user;
+//     $user = \Drupal::currentUser();
 
-    $output = "";
-    $query = "";
-    $count_query = "";
-    $rows = array();
+//     $output = "";
+//     $query = "";
+//     $count_query = "";
+//     $rows = array();
 
-    $header = array(
-        array('data' => 'Date', 'field' => 'ckc.upload_date', 'sort' => 'desc'),
-        array('data' => 'File name'),
-        array('data' => 'Conversion Status'),
-        array('data' => ''),
+//     $header = array(
+//         array('data' => 'Date', 'field' => 'ckc.upload_date', 'sort' => 'desc'),
+//         array('data' => 'File name'),
+//         array('data' => 'Conversion Status'),
+//         array('data' => ''),
 
-    );
+//     );
 
-    $query = db_select('custom_kicad_convertor', 'ckc');
-    $query->fields('ckc', array('id', 'uid', 'description', 'upload_filename', 'converted_flag'
-        , 'upload_date'));
-    $query->condition('ckc.uid', $user->uid);
-    $result = $query->extend('PagerDefault')->limit(10)->extend('TableSort')->orderByHeader($header)->execute();
-    $number_of_rows = $result->rowCount();
+//     $query = \Drupal::database()->select('custom_kicad_convertor', 'ckc');
+//     $query->fields('ckc', array('id', 'uid', 'description', 'upload_filename', 'converted_flag'
+//         , 'upload_date'));
+//     $query->condition('ckc.uid', $user->uid);
+//     $result = $query->extend('PagerDefault')->limit(10)->extend('TableSort')->orderByHeader($header)->execute();
+//     $number_of_rows = $result->rowCount();
 
-    while ($row = $result->fetchObject()) {
+//     while ($row = $result->fetchObject()) {
 
-        $converted_flag = $row->converted_flag;
-        $status = "";
-        if ($converted_flag == 1 || $converted_flag == 0) {
-            $status = "In Process";
-        } else {
-            $status = "Converted";
-        }
+//         $converted_flag = $row->converted_flag;
+//         $status = "";
+//         if ($converted_flag == 1 || $converted_flag == 0) {
+//             $status = "In Process";
+//         } else {
+//             $status = "Converted";
+//         }
 
-        $item = array(date('d-m-Y', strtotime($row->upload_date)), $row->upload_filename, $status,
-            "<a href='description/{$row->id}' class='autodialog' data-dialog-width='700' title='Click to view description of file'>Detail</a>",
+//         $item = array(date('d-m-Y', strtotime($row->upload_date)), $row->upload_filename, $status,
+//             "<a href='description/{$row->id}' class='autodialog' data-dialog-width='700' title='Click to view description of file'>Detail</a>",
 
-        );
-        array_push($rows, $item);
-    }
+//         );
+//         array_push($rows, $item);
+//     }
 
-    if ($number_of_rows == 0) {
-        $output .= '<div style="color:red;text-align:center;">No files has been uploaded by you</div>';
-    } else {
+//     if ($number_of_rows == 0) {
+//         $output .= '<div style="color:red;text-align:center;">No files has been uploaded by you</div>';
+//     } else {
 
-        $build['pager_table'] = array(
-            '#theme' => 'table',
-            '#header' => $header,
-            '#rows' => $rows,
-            '#attributes' => array(
-                'class' => array('table table-bordered table-hover'),
-            ),
-        );
+//         $build['pager_table'] = array(
+//             '#theme' => 'table',
+//             '#header' => $header,
+//             '#rows' => $rows,
+//             '#attributes' => array(
+//                 'class' => array('table table-bordered table-hover'),
+//             ),
+//         );
 
-        // Attach the pager theme.
-        $build['pager_pager'] = array('#theme' => 'pager');
-        $output = $build;
-    }
+//         // Attach the pager theme.
+//         $build['pager_pager'] = array('#theme' => 'pager');
+//         $output = $build;
+//     }
 
-    return $output;
+//     return $output;
 
-}
+// }
 
 function pspice_to_kicad_download_pdf_file()
 {
     $id = arg(3);
     $root_path = pspice_to_kicad_directroy_path();
 
-    $query = db_select('custom_kicad_convertor');
+    $query = \Drupal::database()->select('custom_kicad_convertor');
     $query->fields('custom_kicad_convertor');
     $query->condition('id', $id);
     $query->range(0, 1);
@@ -1155,7 +758,7 @@ function pspice_to_kicad_download_pspice_file()
     $id = arg(3);
     $root_path = pspice_to_kicad_directroy_path();
 
-    $query = db_select('custom_kicad_convertor');
+    $query = \Drupal::database()->select('custom_kicad_convertor');
     $query->fields('custom_kicad_convertor');
     $query->condition('id', $id);
     $query->range(0, 1);
@@ -1171,146 +774,3 @@ function pspice_to_kicad_download_pspice_file()
 
 }
 
-function pspice_to_kicad_delete_file()
-{
-    $fileid = arg(3);
-
-    $number_of_rows = 0;
-    $querycheck = db_select('custom_kicad_convertor');
-    $querycheck->fields('custom_kicad_convertor');
-    $querycheck->condition('id', $fileid);
-    $resultcheck = $querycheck->execute();
-    $number_of_rows = $resultcheck->rowCount();
-
-    $page_content = "";
-    if ($number_of_rows != 0) {
-
-        $pspice_to_kicad_delete_file_form = drupal_get_form("pspice_to_kicad_delete_file_form", $fileid);
-        $page_content = drupal_render($pspice_to_kicad_delete_file_form);
-        return $page_content;
-
-    } else {
-
-        drupal_set_message('File can not be deleted. Please contact to site administrator', 'error');
-        drupal_goto("pspice-to-kicad/convert");
-        return;
-    }
-
-}
-
-function pspice_to_kicad_delete_file_form($form, &$form_state, $fileid)
-{
-
-    $querycheck = db_select('custom_kicad_convertor');
-    $querycheck->fields('custom_kicad_convertor');
-    $querycheck->condition('id', $fileid);
-    $resultcheck = $querycheck->execute();
-    $number_of_rows = $resultcheck->rowCount();
-
-    $form = array();
-    $form['pspice_deletefile_fieldset'] = array(
-        '#type' => 'fieldset',
-        '#tree' => true,
-        '#prefix' => '<div id="pspice-delete-fieldset-wrapper">',
-        '#suffix' => '</div>',
-    );
-
-    $form['pspice_deletefile_fieldset']["reason"] = array(
-        "#type" => "textarea",
-        "#default_value" => "",
-        "#title" => "Reason for deletion of file: ",
-        "#required" => true,
-        '#description' => t('<label>Note: Brief reason for deleting file </label>'),
-    );
-
-    $form["pspice_files_id"] = array(
-        "#type" => "hidden",
-        "#value" => $fileid,
-    );
-    $form["submit"] = array(
-        "#type" => "submit",
-        "#value" => "Submit",
-        "#attributes" => array('onclick' => 'if(!confirm("Do you really want to delete this file ?")){history.go(-1);return false;}'),
-
-    );
-
-    return $form;
-}
-
-function pspice_to_kicad_delete_file_form_validate()
-{
-
-}
-
-function pspice_to_kicad_delete_file_form_submit($form, &$form_state)
-{
-
-    global $user;
-    $v = $form_state["values"];
-    $id = $v["pspice_files_id"];
-    $fileid = $id;
-
-    $querycheck = db_select('custom_kicad_convertor');
-    $querycheck->fields('custom_kicad_convertor');
-    $querycheck->condition('id', $fileid);
-    $resultcheck = $querycheck->execute();
-    $row = $resultcheck->fetchObject();
-
-    $upload_root_path = pspice_to_kicad_directroy_path();
-    $newuploadfilename = $row->upload_filename;
-    $uploadfilepath = $row->upload_filepath;
-    $uploadpdfpath = $row->description_pdf_path;
-    $convertedfilepath = $row->converted_filepath;
-    if (file_exists($upload_root_path . '/' . $uploadfilepath)) {
-        unlink($upload_root_path . '/' . $uploadfilepath);
-    }
-    if (file_exists($upload_root_path . '/' . $uploadpdfpath)) {
-        unlink($upload_root_path . '/' . $uploadpdfpath);
-    }
-    if (file_exists($upload_root_path . '/' . $convertedfilepath)) {
-        unlink($upload_root_path . '/' . $convertedfilepath);
-    }
-    if (!rmdir(get_directory_path($row->uid, $id, 1))) {
-        drupal_set_message('Could not delete the directory, contact site administrator', 'error');
-    }
-    if (!rmdir(get_directory_path($row->uid, $id, 2))) {
-        drupal_set_message('Could not delete the directory, contact site administrator', 'error');
-    }
-    if (!rmdir($upload_root_path . '/' . $row->uid . '/' . $id)) {
-        drupal_set_message('Could not delete the directory, contact site administrator', 'error');
-    }
-    //Deleting DB entry of that file.
-    db_delete('custom_kicad_convertor')->condition('id', $row->id)->execute();
-
-    $user_data = user_load($row->uid);
-    $to = $user_data->mail;
-    $from = variable_get('kicad_from_email', '');
-    $bcc = variable_get('kicad_emails', '');
-    $cc = variable_get('kicad_cc_emails', '');
-    $subject = "[esim.in][PSpice to KiCad Converter] PSpice to KiCad converter: Uploaded schematic/converted file deleted";
-
-    $email_body = "
-
-Dear " . $user_data->name . ",
-
-Thank you for using the PSpice to KiCad converter. We have deleted your uploaded schematic/converted file with the following details:
-
-Schematic name :  " . $row->upload_filename . "
-
-Description: " . $row->description . "
-
-Reason of Deletion : " . trim($v['pspice_deletefile_fieldset']['reason']) . "
-
-You are welcome to upload a new Pspice schematic file for conversion.
-
-Best Wishes,<br>
-" . variable_get('site_name', '') . " Team,<br>
-FOSSEE, IIT Bombay";
-
-    send_mail(variable_get('kicad_from_email', ''), $to, $subject, $email_body, $from, $bcc, $cc);
-
-    drupal_set_message('File is deleted successfully and an email has send to file author.', 'status');
-    drupal_goto("pspice-to-kicad/convert");
-    return;
-
-}
