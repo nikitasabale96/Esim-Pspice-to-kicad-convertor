@@ -15,6 +15,8 @@ use Drupal\Core\Url;
 use Drupal\Component\Utility\Html;
 use Drupal\file\Entity\File;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Drupal\user\Entity\User;
+
 
 
 /**
@@ -23,7 +25,90 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 class DefaultController extends ControllerBase {
 
 
- public function pspice_to_kicad_view() {
+//  public function pspice_to_kicad_view() {
+
+//   $rows = [];
+
+//   $header = [
+//     $this->t('Uploaded by'),
+//     $this->t('Download'),
+//     '',
+//     $this->t('Date'),
+//   ];
+
+//   $connection = Database::getConnection();
+// $query = $connection->select('custom_kicad_convertor', 'ckc');
+// $query->leftJoin('users_field_data', 'u', 'u.uid = ckc.uid');
+
+// $query->fields('ckc', [
+//   'id',
+//   'converted_filename',
+//   'converted_date',
+// ]);
+
+// // ✅ Correct way to fetch username
+// $query->fields('u', ['name']);
+
+// $query->condition('ckc.converted_flag', 2);
+// $query->orderBy('ckc.converted_date', 'DESC');
+
+// $result = $query->execute();
+
+
+//   foreach ($result as $row) {
+
+//     // ✅ Username guaranteed
+// $username = !empty($row->name) ? $row->name : $this->t('Anonymous');
+
+//     $download_link = Link::fromTextAndUrl(
+//       $row->converted_filename,
+//       Url::fromRoute('pspice_to_kicad.download_file', ['id' => $row->id])
+//     )->toRenderable();
+
+//     // $detail_link = Link::fromTextAndUrl(
+//     //   $this->t('Detail'),
+//     //   Url::fromRoute('pspice_to_kicad.description', ['id' => $row->id])
+//     // )->toRenderable();
+
+//      $detail_link = Link::fromTextAndUrl(
+//         $this->t('Detail'),
+//         Url::fromUserInput('/pspice-to-kicad/description/' . $row->id, [
+//           'attributes' => [
+//             'class' => ['use-ajax'],
+//             'data-dialog-type' => 'modal',
+//             'data-dialog-options' => json_encode(['width' => 700]),
+//             'title' => $this->t('Click to view description of file'),
+//           ],
+//         ])
+//       )->toString();
+
+
+//     $rows[] = [
+//       ['data' => ['#markup' => $username]],
+//       ['data' => $download_link],
+//       ['data' => $detail_link],
+//       ['data' => date('d-m-Y', strtotime($row->converted_date))],
+//     ];
+//   }
+
+//   if (empty($rows)) {
+//     return [
+//       '#markup' => '<div style="color:red;text-align:center;">No files available yet for download</div>',
+//     ];
+//   }
+
+//   return [
+//     '#theme' => 'table',
+//     '#header' => $header,
+//     '#rows' => $rows,
+//     '#caption' => $this->t('List of Converted files'),
+//     '#attributes' => [
+//       'class' => ['table', 'table-bordered', 'table-hover'],
+//     ],
+//   ];
+// }
+
+public function pspice_to_kicad_view() {
 
   $rows = [];
 
@@ -34,55 +119,45 @@ class DefaultController extends ControllerBase {
     $this->t('Date'),
   ];
 
-  $connection = Database::getConnection();
-
-  $query = $connection->select('custom_kicad_convertor', 'ckc');
-
-  // ✅ JOIN users_field_data (Drupal 10 way)
-  $query->leftJoin('users_field_data', 'u', 'u.uid = ckc.uid');
-
+  $query = \Drupal::database()->select('custom_kicad_convertor', 'ckc');
   $query->fields('ckc', [
     'id',
+    'uid',
     'converted_filename',
     'converted_date',
   ]);
-
-  // Fetch username
-  $query->addField('u', 'name', 'username');
-
   $query->condition('ckc.converted_flag', 2);
-  $query->orderBy('ckc.converted_date', 'DESC');
+  $query->orderBy('converted_date', 'DESC');
 
   $result = $query->execute();
 
-  foreach ($result as $row) {
+  foreach ($result->fetchAll() as $row) {
 
-    // ✅ Username guaranteed
-    $username = !empty($row->username) ? $row->username : $this->t('Anonymous');
+    /** ✅ Proper user load (Drupal 10 way) */
+    // $username = $this->t('Anonymous');
+    if (!empty($row->uid) && $account = User::load($row->uid) ) {
+      
+      $username = $account->getDisplayName();
+      
+    }
 
     $download_link = Link::fromTextAndUrl(
       $row->converted_filename,
       Url::fromRoute('pspice_to_kicad.download_file', ['id' => $row->id])
     )->toRenderable();
 
-    // $detail_link = Link::fromTextAndUrl(
-    //   $this->t('Detail'),
-    //   Url::fromRoute('pspice_to_kicad.description', ['id' => $row->id])
-    // )->toRenderable();
+    $detail_link = Link::fromTextAndUrl(
+      $this->t('Detail'),
+      Url::fromUserInput('/pspice-to-kicad/description/' . $row->id, [
+        'attributes' => [
+          'class' => ['use-ajax'],
+          'data-dialog-type' => 'modal',
+          'data-dialog-options' => json_encode(['width' => 700]),
+        ],
+      ])
+    )->toString();
 
-     $detail_link = Link::fromTextAndUrl(
-        $this->t('Detail'),
-        Url::fromUserInput('/pspice-to-kicad/description/' . $row->id, [
-          'attributes' => [
-            'class' => ['use-ajax'],
-            'data-dialog-type' => 'modal',
-            'data-dialog-options' => json_encode(['width' => 700]),
-            'title' => $this->t('Click to view description of file'),
-          ],
-        ])
-      )->toString();
-
-
+    /** ✅ NOW item is actually created */
     $rows[] = [
       ['data' => ['#markup' => $username]],
       ['data' => $download_link],
